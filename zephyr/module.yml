@@ -1,0 +1,4 @@
+name: usbtmc
+build:
+  cmake: .
+  kconfig: Kconfig

@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# Kconfig for the USBTMC / USB488 class driver module.
+
+config USBD_TMC
+	bool "USB Test and Measurement Class (USBTMC) driver"
+	default n
+	depends on USB_DEVICE_STACK_NEXT
+	help
+	  Enable the USBTMC 1.0 / USB488 subclass class driver.
+	  A single interface with two bulk endpoints (Bulk-OUT and Bulk-IN) is
+	  presented to the host.  The driver implements the full USBTMC framing
+	  layer and exposes a lightweight callback API:
+
+	    usbd_tmc_set_rx_cb()  — register a DEV_DEP_MSG_OUT payload callback
+	    usbd_tmc_write()      — send a DEV_DEP_MSG_IN response
+	    usbd_tmc_connected()  — check enumeration state
+
+	  The class is registered via USBD_DEFINE_CLASS and is automatically
+	  included by usbd_register_all_classes(); no extra init call is needed.
+
+if USBD_TMC
+
+config USBD_TMC_LOG_LEVEL
+	int "USBTMC driver log level"
+	default 3
+	range 0 4
+	help
+	  Log level for the USBTMC class driver.
+	  0=off  1=error  2=warning  3=info  4=debug
+
+config USBD_TMC_RX_BUF_SIZE
+	int "USBTMC Bulk-OUT receive buffer size (bytes)"
+	default 512
+	range 64 4096
+	help
+	  Maximum payload size for a single incoming USBTMC Bulk-OUT transfer.
+	  A net_buf of (12 + this value) bytes is allocated per receive cycle.
+	  The library's rx callback receives at most this many payload bytes in
+	  one call; larger host messages are silently truncated.
+
+endif # USBD_TMC
